@@ -3,10 +3,11 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Models\Pesanan;
+use Laravel\Sanctum\HasApiTokens;
+use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
-use Illuminate\Notifications\Notifiable;
-use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable
 {
@@ -18,7 +19,7 @@ class User extends Authenticatable
      * @var array<int, string>
      */
     protected $fillable = [
-        'name',
+        'nama',
         'email',
         'password',
     ];
@@ -33,6 +34,9 @@ class User extends Authenticatable
         'remember_token',
     ];
 
+    // protected $with = ['profil:user_id,nama_lengkap,alamat,no_hp,tgl_lahir'];
+
+
     /**
      * The attributes that should be cast.
      *
@@ -42,4 +46,20 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
     ];
+
+    function profil() {
+        return $this->hasOne(Profil::class);
+    }
+
+    function pesanan()
+    {
+        return $this->hasMany(Pesanan::class , 'admin_id');
+    }
+
+    function pesananPivot()
+    {
+        return $this->belongsToMany(Pesanan::class, 'pesanan_atasan', 'atasan_id', 'pesanan_id')
+            ->withPivot('confirmed')
+            ->withTimestamps();
+    }
 }
